@@ -17,7 +17,7 @@
 -define(SERVER, ?MODULE).
 
 start_link() ->
-    gen_server:start_link({global, ?SERVER}, ?SERVER, [], []).
+    gen_server:start_link({local, ?SERVER}, ?SERVER, [], []).
 
 init(_Args) ->
     chatter_store:init(),
