@@ -2,7 +2,7 @@
 
 -behavior(gen_fsm).
 
--export([start/1, join/2, leave/1, send/2]).
+-export([start_link/1, join/2, leave/1, send/2]).
 
 -export([init/1, handle_event/3,
          handle_info/3, handle_sync_event/4,
@@ -12,10 +12,12 @@
 
 -record(state, {handle, chat_room, event_handler}).
 
-start(Handle) ->
-    gen_fsm:start(?MODULE, [Handle], []).
+start_link(Handle) ->
+    gen_fsm:start_link(?MODULE, [Handle], []).
 
 init([Handle]) ->
+    Self = self(),
+    client_store:insert(Self, Handle),
     {ok, disconnected, #state{handle=Handle}}.
 
 join(Pid, ChatRoomName) ->
@@ -28,7 +30,7 @@ send(Pid, Message) ->
     gen_fsm:send_event(Pid, {send, Message} ).
 
 disconnected({join, ChatRoomName}, State=#state{handle=Handle}) ->
-    {ok, ChatRoom, EventHandler} = chatter_server:join(ChatRoomName, Handle),
+    {ok, ChatRoom, EventHandler} = chatter_server:join(Handle, ChatRoomName),
     {next_state, chatting, State#state{chat_room=ChatRoom, event_handler=EventHandler}}.
 
 chatting(leave_chat, State=#state{handle=Handle, chat_room=ChatRoom, event_handler=EventHandler}) ->

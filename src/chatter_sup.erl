@@ -9,19 +9,19 @@
 -export([init/1]).
 
 %% Helper macro for declaring children of supervisor
--define(CHILD(I, Type), {I, {I, start_link, []}, permanent, 5000, Type, [I]}).
+-define(CHILD(I, Type), {I, {I, start_link, []}, permanent, 2000, Type, [I]}).
 
 %% ===================================================================
 %% API functions
 %% ===================================================================
 
 start_link() ->
-    supervisor:start_link({local, ?MODULE}, ?MODULE, []).
+    supervisor:start_link({global, ?MODULE}, ?MODULE, []).
 
 %% ===================================================================
 %% Supervisor callbacks
 %% ===================================================================
 
 init([]) ->
-    {ok, { {one_for_one, 5, 10}, []} }.
-
+    ChildSpecList = [?CHILD(chatter_server, worker), ?CHILD(chatter_client_sup, supervisor)],
+    {ok, { {rest_for_one, 2, 3600}, ChildSpecList} }.
