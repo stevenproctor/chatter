@@ -9,7 +9,7 @@
 
 create(ChatRoomName) ->
     ChatRoom = {?SERVER, ChatRoomName},
-    gen_event:start({local, ChatRoom}).
+    gen_event:start({global, ChatRoom}).
 
 join(RoomPid, User) ->
     HandlerId = {chatter_event, make_ref()},
